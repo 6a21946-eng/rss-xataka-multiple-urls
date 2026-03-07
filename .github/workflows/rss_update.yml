@@ -1,5 +1,4 @@
 name: Actualizar RSS Xataka
-
 on:
   schedule:
     - cron: '0 0 * * *'
