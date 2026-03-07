@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from feedgen.feed import FeedGenerator
+import os
 
 urls = [
     "https://www.xataka.com/tag/crispr",
@@ -26,6 +27,8 @@ fg.description("Feed generado automáticamente con GitHub Actions")
 
 print("Iniciando scrap de URLs...")
 
+total_entries = 0
+
 for url in urls:
     print(f"Leyendo {url}")
     try:
@@ -36,20 +39,27 @@ for url in urls:
         continue
 
     soup = BeautifulSoup(r.content, "html.parser")
-    # Cambiado selector a algo más genérico: titulares de artículos
-    articles = soup.select("a[data-ga*='title']")  # Ajustable si falla
+    articles = soup.select("h2 a")[:5]  # primeros 5 titulares
     if not articles:
         print(f"No se encontraron titulares en {url}")
         continue
 
-    for a in articles[:5]:  # Limitar a 5 titulares por página para rapidez
+    for a in articles:
         title = a.get_text(strip=True)
         link = a.get("href")
         if title and link:
             fe = fg.add_entry()
             fe.title(title)
             fe.link(href=link)
+            total_entries += 1
 
 rss_file_path = "rss.xml"
+
+# Generar rss.xml aunque no haya entradas
 fg.rss_file(rss_file_path)
-print(f"RSS generado correctamente en {rss_file_path}")
+print(f"RSS generado en {rss_file_path} con {total_entries} entradas")
+
+if os.path.exists(rss_file_path):
+    print("rss.xml existe y está listo para commit")
+else:
+    print("Error: rss.xml no se creó")
