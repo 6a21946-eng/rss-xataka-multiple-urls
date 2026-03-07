@@ -2,7 +2,7 @@ name: Actualizar RSS Xataka
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # cada 24h a medianoche UTC
+    - cron: '0 0 * * *'  # se ejecuta cada 24h a medianoche UTC
   workflow_dispatch:      # permite ejecutar manualmente
 
 jobs:
