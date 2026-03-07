@@ -1,38 +1,13 @@
-name: Actualizar RSS Xataka
-
-on:
-  schedule:
-    - cron: '0 0 * * *'  # se ejecuta cada 24h a medianoche UTC
-  workflow_dispatch:      # permite ejecutar manualmente
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Clonar repositorio
-        uses: actions/checkout@v3
-
-      - name: Configurar Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
-      - name: Instalar dependencias
-        run: |
-          pip install requests beautifulsoup4 feedgen
-
-      - name: Ejecutar script
-        run: |
-          python generate_rss.py
-
-      - name: Commit y push de rss.xml si hay cambios
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add rss.xml
-          if ! git diff --cached --quiet; then
-            git commit -m "Actualizar RSS automáticamente"
-            git push
-          else
-            echo "No hay cambios en rss.xml, no se hace commit"
+- name: Commit y push de rss.xml si hay cambios
+  run: |
+    bash -c '
+    git config --local user.email "github-actions[bot]@users.noreply.github.com"
+    git config --local user.name "github-actions[bot]"
+    git add rss.xml
+    if ! git diff --cached --quiet; then
+      git commit -m "Actualizar RSS automáticamente"
+      git push
+    else
+      echo "No hay cambios en rss.xml, no se hace commit"
+    fi
+    '
