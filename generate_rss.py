@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 from feedgen.feed import FeedGenerator
 
-# Lista de URLs a scrapear
 urls = [
     "https://www.xataka.com/tag/crispr",
     "https://www.xataka.com/tag/genetica",
@@ -30,16 +29,20 @@ print("Iniciando scrap de URLs...")
 for url in urls:
     print(f"Leyendo {url}")
     try:
-        r = requests.get(url, timeout=10)  # timeout 10s
+        r = requests.get(url, timeout=10)
         r.raise_for_status()
     except requests.RequestException as e:
         print(f"Error al leer {url}: {e}")
         continue
 
     soup = BeautifulSoup(r.content, "html.parser")
-    # Extraemos titulares de artículos (ajustable según HTML)
-    articles = soup.select("h2 a")  # selector genérico
-    for a in articles:
+    # Cambiado selector a algo más genérico: titulares de artículos
+    articles = soup.select("a[data-ga*='title']")  # Ajustable si falla
+    if not articles:
+        print(f"No se encontraron titulares en {url}")
+        continue
+
+    for a in articles[:5]:  # Limitar a 5 titulares por página para rapidez
         title = a.get_text(strip=True)
         link = a.get("href")
         if title and link:
