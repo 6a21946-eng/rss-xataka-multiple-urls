@@ -1,10 +1,8 @@
-# generate_rss.py
 import requests
 from bs4 import BeautifulSoup
 from feedgen.feed import FeedGenerator
-from datetime import datetime
 
-# URLs que quieres scrapear
+# Lista de URLs a scrapear
 urls = [
     "https://www.xataka.com/tag/crispr",
     "https://www.xataka.com/tag/genetica",
@@ -23,37 +21,32 @@ urls = [
 ]
 
 fg = FeedGenerator()
-fg.title("RSS diario de Xataka")
-fg.link(href="https://github.com/usuario/repositorio", rel="self")
-fg.description("Titulares diarios de Xataka en varias categorías")
+fg.title("RSS Xataka Personalizado")
+fg.link(href="https://www.xataka.com")
+fg.description("Feed generado automáticamente con GitHub Actions")
 
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-}
+print("Iniciando scrap de URLs...")
 
 for url in urls:
+    print(f"Leyendo {url}")
     try:
-        res = requests.get(url, headers=headers, timeout=10)
-        res.raise_for_status()
-        soup = BeautifulSoup(res.text, "html.parser")
+        r = requests.get(url, timeout=10)  # timeout 10s
+        r.raise_for_status()
+    except requests.RequestException as e:
+        print(f"Error al leer {url}: {e}")
+        continue
 
-        # Extrae los titulares: Xataka usa h2 con clase 'article-title'
-        for item in soup.find_all("h2")[:10]:  # últimos 5 titulares
-            a_tag = item.find("a")
-            if a_tag:
-                title = a_tag.get_text(strip=True)
-                link = a_tag['href']
-                fe = fg.add_entry()
-                fe.title(title)
-                fe.link(href=link)
-                fe.pubDate(datetime.now())
+    soup = BeautifulSoup(r.content, "html.parser")
+    # Extraemos titulares de artículos (ajustable según HTML)
+    articles = soup.select("h2 a")  # selector genérico
+    for a in articles:
+        title = a.get_text(strip=True)
+        link = a.get("href")
+        if title and link:
+            fe = fg.add_entry()
+            fe.title(title)
+            fe.link(href=link)
 
-    except Exception as e:
-        print(f"Error con {url}: {e}")
-
-# Genera el rss.xml
-import os
-print("Ruta actual:", os.getcwd())
-fg.rss_file("rss.xml")
-print("rss.xml generado en la raíz")
-print("rss.xml actualizado")
+rss_file_path = "rss.xml"
+fg.rss_file(rss_file_path)
+print(f"RSS generado correctamente en {rss_file_path}")
