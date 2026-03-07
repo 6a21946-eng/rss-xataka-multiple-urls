@@ -52,5 +52,8 @@ for url in urls:
         print(f"Error con {url}: {e}")
 
 # Genera el rss.xml
+import os
+print("Ruta actual:", os.getcwd())
 fg.rss_file("rss.xml")
+print("rss.xml generado en la raíz")
 print("rss.xml actualizado")
