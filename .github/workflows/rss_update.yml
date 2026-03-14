@@ -34,5 +34,5 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add rss.xml
-          git diff --cached --quiet || (git commit -m "Actualizar RSS automáticamente" && git push)
-        continue-on-error: true
+          git commit -m "Actualizar rss.xml automáticamente" || echo "No hay cambios"
+          git push
